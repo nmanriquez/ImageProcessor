@@ -1,0 +1,479 @@
+openapi: 3.0.0
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/spaceinvaders/imageProcessor/1.0.0
+info:
+  description: Allows image processing
+  version: "1.0.0"
+  title: Image Processor API
+  contact:
+    email: manriqueznat@seattleu.edu
+tags:
+  - name: Image
+    description: Operations over the image
+  - name: User
+    description: user authentication actions
+paths:
+  /:
+    get:
+      tags:
+        - Image
+      summary: root
+      operationId: root
+      description: root
+      responses:
+        '200':
+          description: links
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: array
+                    items:
+                      $ref : '#/components/schemas/DocumentLink'
+              example:
+                  {
+                    "links": [
+                      {
+                        "methods": ["POST"],
+                        "rel": "self",
+                        "href": "/user"
+                      },
+                      {
+                        "methods": ["GET"],
+                        "rel": "self",
+                        "href": "/login"
+                      }
+                    ]
+                  }
+  /image:
+    post:
+      tags:
+        - Image
+      summary: upload an image
+      operationId: submitImage
+      description: |
+        Upload the image to process
+      responses:
+        '201':
+          description: image created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnedOriginal'
+              example:
+                  {
+                    "id" : "5c849cd2776afd4338c1869e",
+                    "name" : myimage,
+                    "format" : png,
+                    "username" : username,
+                    "links": [
+                      {
+                        "methods": ["GET"],
+                        "rel": "self",
+                        "href": "/image/5c849cd2776afd4338c1869e?grayscale=yes"
+                      },
+                    ]
+                  }
+        '400':
+          description: 'invalid input'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OriginalImage'
+        description: Image item to add
+  /image/{imageId}:
+    get:
+      tags:
+        - Image
+      summary: request operations over an image
+      operationId: processImage
+      description: |
+        Retrieves the image with the required processing
+      parameters:
+        - in: path
+          name: imageId
+          description: id of the image to edit
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: grayscale
+          description: |
+            grayscale=true
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: resize
+          description: |
+            resize[]=400&resize[]=100 (new width & new height)
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: thumbnail
+          description: |
+            thumbnail=true
+          schema:
+            type: boolean
+        - in: query
+          name: flip
+          description: |
+            flip=horizontal (horizontal or vertical)
+          schema:
+            type: string
+        - in: query
+          name: rotate
+          description: |
+            rotate[]=15&rotate[]=left (Degree of rotation & orientation left or right)
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: image data with chages applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessedImage'
+              example:
+                  {
+                    "name" : myimage,
+                    "username" : username,
+                    "url" : "http://thissite.com/image/9c849cd2776afd4338c1869e/user/username/file/myimage.png",
+                    "links": [
+                      {
+                        "methods": ["GET"],
+                        "rel": "self",
+                        "href": "/image/9c849cd2776afd4338c1869e/user/username/file/myimage.png"
+                      },
+                    ]
+                  }
+        '400':
+          description: bad input parameter
+  /image/{imageId}/user/{username}/file/{filename}:
+    get:
+      tags:
+        - Image
+      summary: retrieve processed image
+      operationId: getProcessed
+      description: processed image file
+      parameters:
+        - in: path
+          name: imageId
+          description: id of the image
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: username
+          description: id of the user to get data
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: filename
+          description: filename
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            image:
+             schema: 
+               type: string
+               format: binary
+        '400':
+          description: bad input parameter
+
+  # authentication
+  /user:
+    post:
+      tags:
+        - User
+      summary: create an account
+      operationId: createUser
+      description: crete an account
+      responses:
+        '201':
+          description: user created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                  {
+                    "username" : username,
+                    "links": [
+                      {
+                        "methods": ["POST"],
+                        "rel": "self",
+                        "href": "/image"
+                      },
+                      {
+                        "methods": ["GET"],
+                        "rel": "self",
+                        "href": "/logout"
+                      },
+                      {
+                        "methods": ["POST, GET, DELETE"],
+                        "rel": "self",
+                        "href": "/user/username"
+                      }
+                    ]
+                  }
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: the user already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: User to add
+  /user/{userId}:
+    get:
+      tags:
+        - User
+      summary: retrieve user data
+      operationId: getUser
+      description: Retrieves user data
+      parameters:
+        - in: path
+          name: userId
+          description: id of the user to get data
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: user data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: bad input parameter
+    put:
+      tags:
+        - User
+      summary: update user data
+      operationId: updateUser
+      description: Retrieves user data
+      parameters:
+        - in: path
+          name: userId
+          description: id of the user to update data
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: User data
+      responses:
+        '200':
+          description: user updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'invalid input, object invalid'
+    delete:
+      tags:
+        - User
+      summary: delet a user
+      operationId: deleteUser
+      description: Deletes a user
+      parameters:
+        - in: path
+          name: userId
+          description: id of the user to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: user deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        '400':
+          description: 'invalid input, object invalid'
+  /login:
+    get:
+      tags:
+        - User
+      summary: login user
+      operationId: login
+      description: login user
+      parameters:
+        - in: query
+          name: username
+          description: username
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: password
+          description: password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: user data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                  {
+                    "username" : username,
+                    "links": [
+                      {
+                        "methods": ["POST"],
+                        "rel": "self",
+                        "href": "/image"
+                      },
+                      {
+                        "methods": ["GET"],
+                        "rel": "self",
+                        "href": "/logout"
+                      },
+                      {
+                        "methods": ["POST, GET, DELETE"],
+                        "rel": "self",
+                        "href": "/user/username"
+                      }
+                    ]
+                  }
+        '400':
+          description: bad input parameters
+  /logout:
+    get:
+      tags:
+        - User
+      summary: logout user
+      operationId: logout
+      description: logout user
+      parameters:
+        - in: query
+          name: username
+          description: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        '400':
+          description: bad input parameters
+      
+components:
+  schemas:
+    OriginalImage:
+      type: object
+      required:
+        - name
+        - sourceImage
+        - username
+      properties:
+        name:
+          type: string
+        sourceImage:
+          type: string
+          description: base64
+        username:
+          type: string
+    ReturnedOriginal:
+      type: object
+      required:
+        - id
+        - name
+        - format
+        - username
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        format:
+          type: string
+        username:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentLink'
+    ProcessedImage:
+      type: object
+      required:
+        - name
+        - username
+        - url
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        url:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentLink'
+    User:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentLink'
+    DocumentLink:
+      type: object
+      properties:
+        methods:
+          type: array
+          items:
+            type: string
+        rel:
+          type: string
+          format: string
+        href:
+          type: string
+          format: string

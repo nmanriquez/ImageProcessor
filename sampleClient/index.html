@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="example.js"></script>
+    </head>
+    <body>
+        <h1>Sample - Image Processor</h1>
+        <div>
+            <h2>Submit image (POST)</h2>
+            <div>
+                <h2>Upload Image</h2>
+                <input id="image-file" type="file" onchange="submitImage(this)" />
+            </div><br>
+            Example:
+            <label id="urlsubmit">http://localhost:8000/image</label><br><br>
+            Result:
+            <div id="submit"></div>
+            <h2>Apply Transformations (GET)</h2>
+            <button id="image">Test image</button>
+            <p>Using another image. Id = 5c858ecf3de7ef6e6865e223</p>
+
+            <h3>Grayscale</h3>
+            Example:
+            <label id="urlgrayscale">http://localhost:8000/image/5c858ecf3de7ef6e6865e223?grayscale=yes</label><br><br>
+            Result:
+            <div id="grayscale"></div>
+
+            <h3>Rotation</h3>
+            Example:
+            <label id="urlrotate">http://localhost:8000/image/5c858ecf3de7ef6e6865e223?rotate[]=90&rotate[]=left</label><br><br>
+            Result:
+            <div id="rotate"></div>
+
+            <h3>Multiple</h3>
+            Example:
+            <label id="urlmultiple">http://localhost:8000/image/5c858ecf3de7ef6e6865e223?thumbnail=yes&flip=horizontal&grayscale=yes</label><br><br>
+            Result:
+            <div id="multiple"></div>
+        </div>
+        <div>
+            <h2>Account and Authorization</h2>
+            <button id="user">Test users</button>
+            <h3>Create user (POST)</h3>
+            Example:
+            <label id="urlCreateUser">http://localhost:8000/user</label><br><br>
+            Result:
+            <div id="createUser"></div>
+            
+            <p>Using another user. Username = testUser</p>
+            <h3>Get user data (GET)</h3>
+            Example:
+            <label id="urluser">http://localhost:8000/user/testUser</label><br><br>
+            Result:
+            <div id="getUser"></div>
+
+            <h3>Update (PUT)</h3>
+            Example:
+            <label>http://localhost:8000/user/testUser</label><br><br>
+            Result:
+            <div id="updateUser"></div>
+
+            <h3>Delete (DELETE)</h3>
+            Example:
+            <label id="urlDelete">http://localhost:8000/user/testuser</label><br><br>
+            Result:
+            <div id="deleteUser"></div>
+
+            <!-- login logout ? -->
+            <h3>login (GET)</h3>
+            Example:
+            <label id="urllogin">http://localhost:8000/login?username=testUser&password=encrypted</label><br><br>
+            Result:
+            <div id="login"></div>
+
+            <h3>Logout (GET)</h3>
+            Example:
+            <label id="urllogout">http://localhost:8000/logout?username=testUser</label><br><br>
+            Result:
+            <div id="logout"></div>
+        </div>
+    </body>
+</html>
